@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'blog.dart';
 import 'blog_repository.dart';
+import 'edit_blog_page.dart';
 
 void main() {
   runApp(BlogApp());
@@ -102,6 +103,14 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.blog.title),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              _navigateToEditBlogPage(context, widget.blog);
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -129,5 +138,15 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
         ),
       ),
     );
+  }
+
+  void _navigateToEditBlogPage(BuildContext context, Blog blog) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditBlogPage(blog: blog)),
+    ).then((_) {
+      // Optional: update the state to reflect any changes after editing.
+      setState(() {});
+    });
   }
 }
