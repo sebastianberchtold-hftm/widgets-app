@@ -79,14 +79,14 @@ class _EditBlogPageState extends State<EditBlogPage> {
 
   void _saveBlog() {
     if (_formKey.currentState!.validate()) {
-      BlogRepository.instance
-          .updateBlogPost(
-        blogId: widget.blog.id,
+      final updatedBlog = Blog(
+        id: widget.blog.id,
         title: _titleController.text,
         content: _contentController.text,
-      )
-          .then((_) {
-        Navigator.of(context).pop(); // Go back after saving
+        publishedAt: widget.blog.publishedAt,
+      );
+      BlogRepository.instance.updateBlogPost(updatedBlog).then((_) {
+        Navigator.of(context).pop();
       });
     }
   }
