@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'blog.dart';
-import 'blog_api.dart';
+import '../endpoints/blog_api.dart';
+import '../models/blog_model.dart';
 
 class BlogRepository {
   static BlogRepository instance = BlogRepository._privateConstructor();
@@ -9,11 +9,11 @@ class BlogRepository {
 
   final BlogApi _api = BlogApi();
 
-  Future<List<Blog>> getBlogPosts() async {
+  Future<List<BlogModel>> getBlogPosts() async {
     return await _api.fetchBlogPosts();
   }
 
-  Future<void> addBlogPost(Blog blog) async {
+  Future<void> addBlogPost(BlogModel blog) async {
     await _api.createBlogPost(blog);
   }
 
@@ -21,7 +21,7 @@ class BlogRepository {
     await _api.deleteBlogPost(id);
   }
 
-  Future<void> updateBlogPost(Blog blog) async {
+  Future<void> updateBlogPost(BlogModel blog) async {
     await _api.updateBlogPost(blog);
   }
 }

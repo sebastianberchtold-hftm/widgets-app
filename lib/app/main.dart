@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'blog.dart';
-import 'blog_repository.dart';
-import 'edit_blog_page.dart';
+import '../features/blog/data/models/blog_model.dart';
+import '../features/blog/data/repositories/blog_repository.dart';
+import '../features/blog/presentation/pages/edit_blog_page.dart';
 
 void main() {
   runApp(BlogApp());
@@ -12,7 +12,7 @@ class BlogApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Blog List',
+      title: 'BlogModel List',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -27,7 +27,7 @@ class BlogListPage extends StatefulWidget {
 }
 
 class _BlogListPageState extends State<BlogListPage> {
-  late Future<List<Blog>> _blogsFuture;
+  late Future<List<BlogModel>> _blogsFuture;
 
   @override
   void initState() {
@@ -39,9 +39,9 @@ class _BlogListPageState extends State<BlogListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Blog List'),
+        title: Text('BlogModel List'),
       ),
-      body: FutureBuilder<List<Blog>>(
+      body: FutureBuilder<List<BlogModel>>(
         future: _blogsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -52,11 +52,11 @@ class _BlogListPageState extends State<BlogListPage> {
             return Center(child: Text('No blogs available.'));
           }
 
-          List<Blog> blogs = snapshot.data!;
+          List<BlogModel> blogs = snapshot.data!;
           return ListView.builder(
             itemCount: blogs.length,
             itemBuilder: (context, index) {
-              Blog blog = blogs[index];
+              BlogModel blog = blogs[index];
               return BlogTile(blog: blog);
             },
           );
@@ -67,7 +67,7 @@ class _BlogListPageState extends State<BlogListPage> {
 }
 
 class BlogTile extends StatelessWidget {
-  final Blog blog;
+  final BlogModel blog;
 
   const BlogTile({Key? key, required this.blog}) : super(key: key);
 
@@ -80,7 +80,7 @@ class BlogTile extends StatelessWidget {
     );
   }
 
-  void _navigateToBlogDetail(BuildContext context, Blog blog) {
+  void _navigateToBlogDetail(BuildContext context, BlogModel blog) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => BlogDetailPage(blog: blog)),
@@ -89,7 +89,7 @@ class BlogTile extends StatelessWidget {
 }
 
 class BlogDetailPage extends StatefulWidget {
-  final Blog blog;
+  final BlogModel blog;
 
   const BlogDetailPage({Key? key, required this.blog}) : super(key: key);
 
@@ -140,7 +140,7 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
     );
   }
 
-  void _navigateToEditBlogPage(BuildContext context, Blog blog) {
+  void _navigateToEditBlogPage(BuildContext context, BlogModel blog) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditBlogPage(blog: blog)),

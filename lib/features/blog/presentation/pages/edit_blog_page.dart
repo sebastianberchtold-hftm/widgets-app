@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ui_controls_demo/blog.dart';
+import 'package:ui_controls_demo/features/blog/data/models/blog_model.dart';
 
-import 'blog_repository.dart';
+import '../../data/repositories/blog_repository.dart';
 
 class EditBlogPage extends StatefulWidget {
-  final Blog blog;
+  final BlogModel blog;
 
   const EditBlogPage({Key? key, required this.blog}) : super(key: key);
 
@@ -79,7 +79,7 @@ class _EditBlogPageState extends State<EditBlogPage> {
 
   void _saveBlog() {
     if (_formKey.currentState!.validate()) {
-      final updatedBlog = Blog(
+      final updatedBlog = BlogModel(
         id: widget.blog.id,
         title: _titleController.text,
         content: _contentController.text,
