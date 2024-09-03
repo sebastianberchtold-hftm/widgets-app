@@ -1,5 +1,5 @@
 class BlogModel {
-  int id;
+  String id;
   String title;
   String content;
   DateTime publishedAt;
@@ -17,11 +17,11 @@ class BlogModel {
 
   factory BlogModel.fromJson(Map<String, dynamic> json) {
     return BlogModel(
-      id: json['\$id'],
-      title: json['title'],
-      content: json['content'],
-      publishedAt: DateTime.parse(json['publishedAt']),
-    );
+        id: json['\$id'] ?? '', // Default to an empty string if null
+        title: json['title'] ?? 'Untitled', // Default to 'Untitled' if null
+        content: json['content'] ?? 'No content available', // Default content
+        publishedAt: DateTime.parse(
+            json['publishedAt'] ?? DateTime.now().toIso8601String()));
   }
 
   Map<String, dynamic> toJson() {

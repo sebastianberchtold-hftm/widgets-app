@@ -32,7 +32,7 @@ class _BlogListPageState extends State<BlogListPage> {
   @override
   void initState() {
     super.initState();
-    _blogsFuture = BlogRepository.instance.getBlogPosts();
+    _blogsFuture = BlogRepository.instance.fetchBlogs();
   }
 
   @override

@@ -85,7 +85,7 @@ class _EditBlogPageState extends State<EditBlogPage> {
         content: _contentController.text,
         publishedAt: widget.blog.publishedAt,
       );
-      BlogRepository.instance.updateBlogPost(updatedBlog).then((_) {
+      BlogRepository.instance.updateBlog(updatedBlog).then((_) {
         Navigator.of(context).pop();
       });
     }
