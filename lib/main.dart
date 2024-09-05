@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'features/blog/presentation/pages/add_blog_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -70,6 +71,34 @@ class _BlogListPageState extends State<BlogListPage> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  AddBlogPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin =
+                    Offset(0.0, 1.0); // Start position (bottom of screen)
+                const end = Offset.zero; // End position (top of screen)
+                const curve = Curves.ease;
+
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+                var offsetAnimation = animation.drive(tween);
+
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
+            ),
+          );
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
