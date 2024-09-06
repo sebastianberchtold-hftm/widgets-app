@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ui_controls_demo/blog.dart';
-
-import 'blog_repository.dart';
+import 'package:ui_controls_demo/features/blog/data/models/blog_model.dart';
 
 class EditBlogPage extends StatefulWidget {
-  final Blog blog;
+  final BlogModel blog;
 
   const EditBlogPage({Key? key, required this.blog}) : super(key: key);
 
@@ -79,15 +77,11 @@ class _EditBlogPageState extends State<EditBlogPage> {
 
   void _saveBlog() {
     if (_formKey.currentState!.validate()) {
-      final updatedBlog = Blog(
-        id: widget.blog.id,
-        title: _titleController.text,
-        content: _contentController.text,
-        publishedAt: widget.blog.publishedAt,
-      );
-      BlogRepository.instance.updateBlogPost(updatedBlog).then((_) {
-        Navigator.of(context).pop();
-      });
+      final updatedBlog = BlogModel(
+          title: _titleController.text,
+          content: _contentController.text,
+          publishedDateString: widget.blog.publishedDateString,
+          imageUrl: widget.blog.imageUrl);
     }
   }
 }
