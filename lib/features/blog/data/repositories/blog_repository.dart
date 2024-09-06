@@ -55,11 +55,38 @@ class BlogRepository {
       await _firestore.collection('blogs').doc(blogId).update({
         'title': title,
         'content': content,
-        'updatedAt':
-            DateTime.now().toString(), // Optionally update the timestamp
+        'updatedAt': DateTime.now().toString(),
       });
     } catch (e) {
       throw Exception('Failed to update blog: $e');
     }
+  }
+
+  Future<void> likeBlog(String blogId) async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      throw Exception('User is not authenticated');
+    }
+
+    DocumentSnapshot blogDoc =
+        await _firestore.collection('blogs').doc(blogId).get();
+
+    if (!blogDoc.exists) {
+      throw Exception('Blog not found');
+    }
+
+    List<String> likedBy = List<String>.from(blogDoc['likedBy'] ?? []);
+
+    if (likedBy.contains(currentUser.uid)) {
+      throw Exception('You have already liked this blog');
+    }
+
+    likedBy.add(currentUser.uid);
+
+    await _firestore.collection('blogs').doc(blogId).update({
+      'likes': FieldValue.increment(1),
+      'likedBy': likedBy,
+    });
   }
 }

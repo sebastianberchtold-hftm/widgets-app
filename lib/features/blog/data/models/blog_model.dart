@@ -1,11 +1,13 @@
 class BlogModel {
-  String id; // Blog's document ID
+  final String id;
   final String title;
   final String content;
   final String author;
   final String publishedDate;
-  final String? imageUrl; // Nullable imageUrl
-  final String uid; // UID of the blog's owner
+  final String uid;
+  final String imageUrl;
+  final int likes;
+  final List<String> likedBy; // Track which users liked the blog
 
   BlogModel({
     required this.id,
@@ -13,21 +15,39 @@ class BlogModel {
     required this.content,
     required this.author,
     required this.publishedDate,
-    this.imageUrl, // imageUrl is optional
     required this.uid,
+    required this.imageUrl,
+    required this.likes,
+    required this.likedBy,
   });
 
-  // Factory method to create a BlogModel from Firestore data
-  factory BlogModel.fromFirestore(Map<String, dynamic> data, String docId) {
+  // Factory constructor to create a BlogModel from Firestore data
+  factory BlogModel.fromFirestore(Map<String, dynamic> data, String id) {
     return BlogModel(
-      id: docId, // Pass the document ID from Firestore
-      title: data['title'] ?? 'Untitled', // Fallback to 'Untitled' if null
-      content: data['content'] ?? 'No content available', // Fallback if null
-      author: data['author'] ?? 'Unknown', // Fallback if null
-      publishedDate:
-          data['publishedDate'] ?? 'Unknown date', // Fallback if null
-      imageUrl: data['imageUrl'], // Nullable imageUrl
-      uid: data['uid'] ?? '', // Fallback if UID is null
+      id: id,
+      title: data['title'] ?? '',
+      content: data['content'] ?? '',
+      author: data['author'] ?? '',
+      publishedDate: data['publishedDate'] ?? '',
+      uid: data['uid'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      likes: data['likes'] ?? 0,
+      likedBy:
+          List<String>.from(data['likedBy'] ?? []), // Initialize likedBy list
     );
+  }
+
+  // Convert the BlogModel back to a Map for Firestore (useful for updating/creating)
+  Map<String, dynamic> toFirestore() {
+    return {
+      'title': title,
+      'content': content,
+      'author': author,
+      'publishedDate': publishedDate,
+      'uid': uid,
+      'imageUrl': imageUrl,
+      'likes': likes,
+      'likedBy': likedBy, // Include likedBy when saving to Firestore
+    };
   }
 }

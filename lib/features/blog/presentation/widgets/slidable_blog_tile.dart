@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:ui_controls_demo/features/blog/presentation/animations/custom_page_route.dart';
 
+import '../../data/repositories/blog_repository.dart';
 import '../pages/detail_blog_page.dart';
 
 class SlidableBlogTile extends StatelessWidget {
   final String blogId;
   final Map<String, dynamic> blogData;
+  final BlogRepository blogRepository = BlogRepository();
 
-  const SlidableBlogTile({
+  SlidableBlogTile({
     Key? key,
     required this.blogId,
     required this.blogData,
@@ -68,25 +70,41 @@ class SlidableBlogTile extends StatelessWidget {
             ),
         ],
       ),
-      child: ListTile(
-        leading: imageUrl.isNotEmpty
-            ? Image.network(imageUrl, width: 50, height: 50, fit: BoxFit.cover)
-            : Icon(Icons.image, size: 50),
-        title: Text(blogData['title'] ?? 'Untitled Blog'),
-        subtitle: Text('By ${blogData['author'] ?? 'Unknown Author'}'),
-        onTap: () {
-          Navigator.of(context).push(
-            CustomPageRoute(
-              child: BlogDetailPage(
-                title: blogData['title'] ?? 'Untitled Blog',
-                content: blogData['content'] ?? 'No content available',
-                author: blogData['author'] ?? 'Unknown Author',
-                imageUrl: blogData['imageUrl'],
-                publishedDate: blogData['publishedDate'] ?? 'Unknown date',
-              ),
-            ),
-          );
+      child: GestureDetector(
+        onDoubleTap: () async {
+          try {
+            await blogRepository.likeBlog(blogId);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Liked the blog!')),
+            );
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(e.toString())),
+            );
+          }
         },
+        child: ListTile(
+          leading: imageUrl.isNotEmpty
+              ? Image.network(imageUrl,
+                  width: 50, height: 50, fit: BoxFit.cover)
+              : Icon(Icons.image, size: 50),
+          title: Text(blogData['title'] ?? 'Untitled Blog'),
+          subtitle: Text(
+              'By ${blogData['author'] ?? 'Unknown Author'} • ${blogData['likes'] ?? 0} likes'),
+          onTap: () {
+            Navigator.of(context).push(
+              CustomPageRoute(
+                child: BlogDetailPage(
+                  title: blogData['title'] ?? 'Untitled Blog',
+                  content: blogData['content'] ?? 'No content available',
+                  author: blogData['author'] ?? 'Unknown Author',
+                  imageUrl: blogData['imageUrl'],
+                  publishedDate: blogData['publishedDate'] ?? 'Unknown date',
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
