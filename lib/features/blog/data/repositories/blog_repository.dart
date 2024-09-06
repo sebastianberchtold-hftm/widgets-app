@@ -45,6 +45,8 @@ class BlogRepository {
         'content': content,
         'author': user.displayName ?? 'Anonymous',
         'publishedDate': DateTime.now().toString(),
+        'likedBy': [],
+        'likes': 0,
         'uid': user.uid,
       });
     }
@@ -75,7 +77,6 @@ class BlogRepository {
     if (!blogDoc.exists) {
       throw Exception('Blog not found');
     }
-
     List<String> likedBy = List<String>.from(blogDoc['likedBy'] ?? []);
 
     if (likedBy.contains(currentUser.uid)) {

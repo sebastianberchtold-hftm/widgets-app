@@ -84,7 +84,9 @@ class _BlogListPageState extends State<BlogListPage> {
                       'content': blog.content,
                       'author': blog.author,
                       'publishedDate': blog.publishedDate,
-                      'uid': blog.uid
+                      'uid': blog.uid,
+                      'likes': blog.likes,
+                      'likedBy': blog.likedBy,
                     },
                   );
                 },
