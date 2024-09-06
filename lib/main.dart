@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:ui_controls_demo/features/auth/page/sign_in_page.dart';
 
 import 'features/blog/presentation/pages/blog_list_page.dart';
 import 'firebase_options.dart';
@@ -31,18 +32,18 @@ class _BlogAppState extends State<BlogApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Blog List',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        primarySwatch: Colors.blue,
-        brightness: Brightness.dark,
-      ),
-      themeMode: _themeMode, // Use the selected theme mode
-      home: BlogListPage(
-          toggleTheme: _toggleTheme, isDarkMode: _themeMode == ThemeMode.dark),
+      title: 'Blog App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      darkTheme: ThemeData(brightness: Brightness.dark),
+      themeMode: _themeMode,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => BlogListPage(
+              toggleTheme: _toggleTheme,
+              isDarkMode: _themeMode == ThemeMode.dark,
+            ),
+        '/sign-in': (context) => SignInPage(),
+      },
     );
   }
 }
