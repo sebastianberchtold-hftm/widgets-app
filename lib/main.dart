@@ -13,15 +13,36 @@ void main() async {
   runApp(BlogApp());
 }
 
-class BlogApp extends StatelessWidget {
+class BlogApp extends StatefulWidget {
+  @override
+  _BlogAppState createState() => _BlogAppState();
+}
+
+class _BlogAppState extends State<BlogApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  // Toggle theme between light and dark
+  void _toggleTheme(bool isDarkMode) {
+    setState(() {
+      _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Blog List',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        brightness: Brightness.light,
       ),
-      home: BlogListPage(),
+      darkTheme: ThemeData(
+        primarySwatch: Colors.blue,
+        brightness: Brightness.dark,
+      ),
+      themeMode: _themeMode, // Use the selected theme mode
+      home: BlogListPage(
+          toggleTheme: _toggleTheme, isDarkMode: _themeMode == ThemeMode.dark),
     );
   }
 }

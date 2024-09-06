@@ -2,8 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ui_controls_demo/features/blog/presentation/pages/add_blog_page.dart';
 import 'package:ui_controls_demo/features/blog/presentation/widgets/slidable_blog_tile.dart';
+import 'package:ui_controls_demo/features/blog/presentation/widgets/toggle_theme.dart';
 
 class BlogListPage extends StatefulWidget {
+  final Function(bool) toggleTheme;
+  final bool isDarkMode;
+
+  BlogListPage({required this.toggleTheme, required this.isDarkMode});
   @override
   _BlogListPageState createState() => _BlogListPageState();
 }
@@ -14,6 +19,10 @@ class _BlogListPageState extends State<BlogListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Blog List'),
+        actions: [
+          ThemeSwitcher(
+              isDarkMode: widget.isDarkMode, onThemeChanged: widget.toggleTheme)
+        ],
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('blogs').snapshots(),
