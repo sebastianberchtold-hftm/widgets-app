@@ -1,0 +1,1 @@
+ C:\\schule\\flutter\\widgets\ app\\.dart_tool\\flutter_build\\94945d7070ac8410f99ae02b0210d3f8\\native_assets.yaml: 
