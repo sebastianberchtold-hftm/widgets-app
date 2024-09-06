@@ -6,16 +6,19 @@ import '../models/blog_model.dart';
 class BlogRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<List<BlogModel>> fetchBlogs() async {
+  Stream<List<BlogModel>> fetchBlogs() {
     try {
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('blogs').get();
-      return querySnapshot.docs.map((doc) {
-        return BlogModel.fromFirestore(
-            doc.data() as Map<String, dynamic>, doc.id);
-      }).toList();
+      return FirebaseFirestore.instance
+          .collection('blogs')
+          .snapshots() // This listens to real-time changes in the 'blogs' collection.
+          .map((snapshot) {
+        return snapshot.docs.map((doc) {
+          return BlogModel.fromFirestore(
+              doc.data() as Map<String, dynamic>, doc.id);
+        }).toList();
+      });
     } catch (e) {
-      throw Exception('Failed to load blogs: $e');
+      throw Exception('Failed to stream blogs: $e');
     }
   }
 

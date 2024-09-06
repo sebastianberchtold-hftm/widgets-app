@@ -1,12 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ui_controls_demo/features/auth/page/sign_in_page.dart';
+import 'package:ui_controls_demo/features/blog/data/models/blog_model.dart';
+import 'package:ui_controls_demo/features/blog/data/repositories/blog_repository.dart';
 import 'package:ui_controls_demo/features/blog/presentation/pages/add_blog_page.dart';
 import 'package:ui_controls_demo/features/blog/presentation/widgets/slidable_blog_tile.dart';
 import 'package:ui_controls_demo/features/blog/presentation/widgets/toggle_theme.dart';
-
-import '../../data/models/blog_model.dart';
-import '../../data/repositories/blog_repository.dart';
 
 class BlogListPage extends StatefulWidget {
   final Function(bool) toggleTheme;
@@ -20,14 +19,6 @@ class BlogListPage extends StatefulWidget {
 
 class _BlogListPageState extends State<BlogListPage> {
   final BlogRepository _blogRepository = BlogRepository();
-  late Future<List<BlogModel>> _blogsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _blogsFuture =
-        _blogRepository.fetchBlogs(); // Fetch blogs from the repository
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +31,12 @@ class _BlogListPageState extends State<BlogListPage> {
           );
         }
 
-        // If the user is not authenticated, navigate to the sign-in page
         if (!snapshot.hasData) {
           Future.microtask(() => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => SignInPage()),
               ));
-          return SizedBox(); // Empty widget while redirecting
+          return SizedBox();
         }
 
         return Scaffold(
@@ -69,8 +59,8 @@ class _BlogListPageState extends State<BlogListPage> {
               ),
             ],
           ),
-          body: FutureBuilder<List<BlogModel>>(
-            future: _blogsFuture,
+          body: StreamBuilder<List<BlogModel>>(
+            stream: _blogRepository.fetchBlogs(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -88,13 +78,13 @@ class _BlogListPageState extends State<BlogListPage> {
                   BlogModel blog = blogs[index];
 
                   return SlidableBlogTile(
-                    blogId: blog.id, // Pass blog ID
+                    blogId: blog.id,
                     blogData: {
                       'title': blog.title,
                       'content': blog.content,
                       'author': blog.author,
                       'publishedDate': blog.publishedDate,
-                      'uid': blog.uid // Pass blog UID
+                      'uid': blog.uid
                     },
                   );
                 },
