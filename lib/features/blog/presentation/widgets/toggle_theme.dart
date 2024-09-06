@@ -12,11 +12,11 @@ class ThemeSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Switch(
-      value: isDarkMode,
-      onChanged: onThemeChanged,
-      activeTrackColor: Colors.lightBlueAccent,
-      activeColor: Colors.blue,
+    return IconButton(
+      icon: Icon(isDarkMode ? Icons.nightlight_round : Icons.wb_sunny),
+      onPressed: () {
+        onThemeChanged(!isDarkMode); // Toggle theme
+      },
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../controlles/authentication.dart'; // Make sure to import your AuthService
+
 class SignInPage extends StatefulWidget {
   @override
   _SignInPageState createState() => _SignInPageState();
@@ -9,6 +11,8 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService =
+      AuthService(); // Create an instance of AuthService
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +26,14 @@ class _SignInPageState extends State<SignInPage> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                hintText: "example@mail.com",
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
             ),
+            SizedBox(height: 16),
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(labelText: 'Password'),
@@ -32,16 +42,15 @@ class _SignInPageState extends State<SignInPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                try {
-                  await FirebaseAuth.instance.signInWithEmailAndPassword(
-                    email: _emailController.text.trim(),
-                    password: _passwordController.text.trim(),
-                  );
-                  Navigator.pushReplacementNamed(context, '/');
-                } on FirebaseAuthException catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.message ?? 'Error')),
-                  );
+                String email = _emailController.text.trim();
+                String password = _passwordController.text.trim();
+
+                // Use the AuthService's sign-in method
+                User? user = await _authService.signInWithEmailAndPassword(
+                    email, password, context);
+                if (user != null) {
+                  Navigator.pushReplacementNamed(
+                      context, '/'); // Navigate to the home page on success
                 }
               },
               child: Text('Sign In'),

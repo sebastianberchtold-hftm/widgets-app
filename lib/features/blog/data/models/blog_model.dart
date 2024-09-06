@@ -1,25 +1,33 @@
 class BlogModel {
+  String id; // Blog's document ID
   final String title;
   final String content;
-  final String publishedDateString;
-  final String imageUrl; // This field stores the image URL
-  bool isLikedByMe;
+  final String author;
+  final String publishedDate;
+  final String? imageUrl; // Nullable imageUrl
+  final String uid; // UID of the blog's owner
 
   BlogModel({
+    required this.id,
     required this.title,
     required this.content,
-    required this.publishedDateString,
-    required this.imageUrl,
-    this.isLikedByMe = false,
+    required this.author,
+    required this.publishedDate,
+    this.imageUrl, // imageUrl is optional
+    required this.uid,
   });
 
-  factory BlogModel.fromFirestore(Map<String, dynamic> data) {
+  // Factory method to create a BlogModel from Firestore data
+  factory BlogModel.fromFirestore(Map<String, dynamic> data, String docId) {
     return BlogModel(
-      title: data['title'] ?? '',
-      content: data['content'] ?? '',
-      publishedDateString: data['publishedDateString'] ?? '',
-      imageUrl: data['imageUrl'] ?? '', // Ensure the imageUrl is parsed
-      isLikedByMe: data['isLikedByMe'] ?? false,
+      id: docId, // Pass the document ID from Firestore
+      title: data['title'] ?? 'Untitled', // Fallback to 'Untitled' if null
+      content: data['content'] ?? 'No content available', // Fallback if null
+      author: data['author'] ?? 'Unknown', // Fallback if null
+      publishedDate:
+          data['publishedDate'] ?? 'Unknown date', // Fallback if null
+      imageUrl: data['imageUrl'], // Nullable imageUrl
+      uid: data['uid'] ?? '', // Fallback if UID is null
     );
   }
 }

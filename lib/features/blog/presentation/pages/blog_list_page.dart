@@ -1,10 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ui_controls_demo/features/auth/page/sign_in_page.dart';
 import 'package:ui_controls_demo/features/blog/presentation/pages/add_blog_page.dart';
 import 'package:ui_controls_demo/features/blog/presentation/widgets/slidable_blog_tile.dart';
 import 'package:ui_controls_demo/features/blog/presentation/widgets/toggle_theme.dart';
+
+import '../../data/models/blog_model.dart';
+import '../../data/repositories/blog_repository.dart';
 
 class BlogListPage extends StatefulWidget {
   final Function(bool) toggleTheme;
@@ -17,6 +19,16 @@ class BlogListPage extends StatefulWidget {
 }
 
 class _BlogListPageState extends State<BlogListPage> {
+  final BlogRepository _blogRepository = BlogRepository();
+  late Future<List<BlogModel>> _blogsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _blogsFuture =
+        _blogRepository.fetchBlogs(); // Fetch blogs from the repository
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
@@ -37,7 +49,6 @@ class _BlogListPageState extends State<BlogListPage> {
           return SizedBox(); // Empty widget while redirecting
         }
 
-        // If the user is authenticated, show the blog list page
         return Scaffold(
           appBar: AppBar(
             title: Text('Blog List'),
@@ -58,26 +69,34 @@ class _BlogListPageState extends State<BlogListPage> {
               ),
             ],
           ),
-          body: StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('blogs').snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          body: FutureBuilder<List<BlogModel>>(
+            future: _blogsFuture,
+            builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return Center(child: Text('No blogs available.'));
               }
 
-              List<QueryDocumentSnapshot> blogs = snapshot.data!.docs;
+              List<BlogModel> blogs = snapshot.data!;
 
               return ListView.builder(
                 itemCount: blogs.length,
                 itemBuilder: (context, index) {
-                  var blogData = blogs[index].data() as Map<String, dynamic>;
-                  String blogId = blogs[index].id;
+                  BlogModel blog = blogs[index];
 
-                  return SlidableBlogTile(blogId: blogId, blogData: blogData);
+                  return SlidableBlogTile(
+                    blogId: blog.id, // Pass blog ID
+                    blogData: {
+                      'title': blog.title,
+                      'content': blog.content,
+                      'author': blog.author,
+                      'publishedDate': blog.publishedDate,
+                      'uid': blog.uid // Pass blog UID
+                    },
+                  );
                 },
               );
             },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ui_controls_demo/features/blog/data/models/blog_model.dart';
+import 'package:ui_controls_demo/features/blog/data/repositories/blog_repository.dart';
 
 class EditBlogPage extends StatefulWidget {
   final BlogModel blog;
@@ -14,6 +15,8 @@ class _EditBlogPageState extends State<EditBlogPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _contentController;
+  final BlogRepository _blogRepository = BlogRepository();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -37,51 +40,73 @@ class _EditBlogPageState extends State<EditBlogPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.save),
-            onPressed: _saveBlog,
+            onPressed: _isLoading ? null : _saveBlog,
           ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(labelText: 'Title'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Form(
+              key: _formKey,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: InputDecoration(labelText: 'Title'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a title';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: _contentController,
+                      decoration: InputDecoration(labelText: 'Content'),
+                      maxLines: 8,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some content';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
-              TextFormField(
-                controller: _contentController,
-                decoration: InputDecoration(labelText: 'Content'),
-                maxLines: 8,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter some content';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
-  void _saveBlog() {
+  void _saveBlog() async {
     if (_formKey.currentState!.validate()) {
-      final updatedBlog = BlogModel(
-          title: _titleController.text,
-          content: _contentController.text,
-          publishedDateString: widget.blog.publishedDateString,
-          imageUrl: widget.blog.imageUrl);
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // Call the updateBlog method from the repository
+        await _blogRepository.updateBlog(
+          widget.blog.id,
+          _titleController.text.trim(),
+          _contentController.text.trim(),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Blog updated successfully!')),
+        );
+        Navigator.pop(context); // Navigate back to the blog list
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update blog: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }
