@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ui_controls_demo/features/blog/data/repositories/blog_repository.dart';
 
 class AddBlogPage extends StatefulWidget {
   @override
@@ -15,21 +16,28 @@ class _AddBlogPageState extends State<AddBlogPage> {
   String _content = '';
   File? _imageFile;
 
-  final ImagePicker _picker = ImagePicker();
-
   Future<void> _addBlog() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      await FirebaseFirestore.instance.collection('blogs').add({
-        'title': _title,
-        'content': _content,
-        'publishedDateString': DateTime.now().toIso8601String(),
-      });
-
-      Navigator.pop(context);
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        try {
+          await BlogRepository.instance.addBlog(
+            title: _title,
+            content: _content,
+            imageFile: _imageFile,
+            userId: user.uid, // Pass the user ID to the repository
+          );
+          Navigator.pop(context); // Go back to the blog list
+        } catch (e) {
+          print('Error adding blog: $e');
+        }
+      }
     }
   }
+
+  final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);

@@ -38,6 +38,10 @@ attr splitRatio
 attr ttcIndex
 color androidx_core_ripple_material_light
 color androidx_core_secondary_text_default_material_light
+color browser_actions_bg_grey
+color browser_actions_divider_color
+color browser_actions_text_color
+color browser_actions_title_color
 color call_notification_answer_color
 color call_notification_decline_color
 color common_google_signin_btn_text_dark
@@ -53,6 +57,8 @@ color common_google_signin_btn_text_light_pressed
 color common_google_signin_btn_tint
 color notification_action_color_filter
 color notification_icon_bg_color
+dimen browser_actions_context_menu_max_width
+dimen browser_actions_context_menu_min_padding
 dimen compat_button_inset_horizontal_material
 dimen compat_button_inset_vertical_material
 dimen compat_button_padding_horizontal_material
@@ -102,6 +108,9 @@ drawable ic_call_answer_video
 drawable ic_call_answer_video_low
 drawable ic_call_decline
 drawable ic_call_decline_low
+drawable ic_other_sign_in
+drawable ic_passkey
+drawable ic_password
 drawable launch_background
 drawable notification_action_background
 drawable notification_bg
@@ -159,6 +168,11 @@ id androidx_window_activity_scope
 id async
 id auto
 id blocking
+id browser_actions_header_text
+id browser_actions_menu_item_icon
+id browser_actions_menu_item_text
+id browser_actions_menu_items
+id browser_actions_menu_view
 id chronometer
 id dark
 id dialog_button
@@ -207,6 +221,8 @@ id view_tree_view_model_store_owner
 id wide
 integer google_play_services_version
 integer status_bar_notification_info_maxnum
+layout browser_actions_context_menu_page
+layout browser_actions_context_menu_row
 layout custom_dialog
 layout notification_action
 layout notification_action_tombstone
@@ -216,6 +232,8 @@ layout notification_template_part_chronometer
 layout notification_template_part_time
 mipmap ic_launcher
 raw firebase_common_keep
+string android_credentials_TYPE_PASSWORD_CREDENTIAL
+string androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
 string androidx_startup
 string call_notification_answer_action
 string call_notification_answer_video_action
@@ -242,6 +260,10 @@ string common_google_play_services_wear_update_text
 string common_open_on_phone
 string common_signin_button_text
 string common_signin_button_text_long
+string copy_toast_msg
+string fallback_menu_item_copy_link
+string fallback_menu_item_open_in_browser
+string fallback_menu_item_share_link
 string gcm_defaultSenderId
 string google_api_key
 string google_app_id
@@ -256,6 +278,7 @@ style TextAppearance_Compat_Notification_Info
 style TextAppearance_Compat_Notification_Line2
 style TextAppearance_Compat_Notification_Time
 style TextAppearance_Compat_Notification_Title
+style Theme_Hidden
 style Widget_Compat_NotificationActionContainer
 style Widget_Compat_NotificationActionText
 styleable ActivityFilter activityAction activityName
@@ -273,3 +296,4 @@ styleable SplitPairRule clearTop finishPrimaryWithSecondary finishSecondaryWithP
 styleable SplitPlaceholderRule placeholderActivityName splitLayoutDirection splitMinSmallestWidth splitMinWidth splitRatio
 xml flutter_image_picker_file_paths
 xml ga_ad_services_config
+xml image_share_filepaths
