@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ui_controls_demo/features/blog/data/repositories/blog_repository.dart';
 
 class AddBlogPage extends StatefulWidget {
@@ -12,19 +16,65 @@ class _AddBlogPageState extends State<AddBlogPage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   bool _isLoading = false;
+  File? _selectedImage; // To hold the selected image
+  final ImagePicker _picker = ImagePicker(); // Image picker instance
+
+  // Function to pick an image from gallery
+  Future<void> _pickImage() async {
+    final pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        _selectedImage = File(pickedImage.path); // Store the selected image
+      });
+    }
+  }
+
+  Future<String?> _uploadImage(File image) async {
+    try {
+      String fileName = 'blog_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      Reference storageRef =
+          FirebaseStorage.instance.ref().child('blog_images/$fileName');
+
+      UploadTask uploadTask = storageRef.putFile(image);
+      TaskSnapshot snapshot = await uploadTask;
+
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
 
   Future<void> _submitBlog() async {
     if (_formKey.currentState!.validate()) {
+      if (_selectedImage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please select an image')),
+        );
+        return;
+      }
+
       setState(() {
         _isLoading = true;
       });
 
       try {
-        await _blogRepository.addBlog(
-          _titleController.text.trim(),
-          _contentController.text.trim(),
-        );
-        Navigator.pop(context); // Go back to the blog list page after adding
+        String? imageUrl = await _uploadImage(_selectedImage!);
+
+        if (imageUrl != null) {
+          await _blogRepository.addBlog(
+            _titleController.text.trim(),
+            _contentController.text.trim(),
+            imageUrl,
+          );
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to upload image')),
+          );
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to add blog: $e')),
@@ -71,6 +121,22 @@ class _AddBlogPageState extends State<AddBlogPage> {
                         }
                         return null;
                       },
+                    ),
+                    SizedBox(height: 20),
+                    if (_selectedImage != null)
+                      Image.file(
+                        _selectedImage!,
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                    else
+                      Text('No image selected'),
+                    SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: _pickImage,
+                      icon: Icon(Icons.image),
+                      label: Text('Pick Image'),
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(

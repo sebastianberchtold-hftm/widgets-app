@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:ui_controls_demo/features/blog/presentation/animations/custom_page_route.dart';
+import 'package:ui_controls_demo/features/blog/presentation/pages/blog_tile.dart';
+import 'package:ui_controls_demo/features/blog/presentation/widgets/slidable_actions.dart';
 
 import '../../data/repositories/blog_repository.dart';
 import '../pages/detail_blog_page.dart';
@@ -21,91 +22,72 @@ class SlidableBlogTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User? currentUser = FirebaseAuth.instance.currentUser;
-    String imageUrl = blogData['imageUrl'] ?? '';
+    bool isOwner = currentUser != null && currentUser.uid == blogData['uid'];
 
+    return GestureDetector(
+      onDoubleTap: () async {
+        try {
+          DocumentSnapshot blogSnapshot = await FirebaseFirestore.instance
+              .collection('blogs')
+              .doc(blogId)
+              .get();
+
+          if (blogSnapshot.exists) {
+            List likedBy = blogSnapshot['likedBy'] ?? [];
+            bool isLiked =
+                likedBy.contains(FirebaseAuth.instance.currentUser?.uid);
+
+            await blogRepository.toggleLike(blogId);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content:
+                      Text(isLiked ? 'Unliked the blog!' : 'Liked the blog!')),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString())),
+          );
+        }
+      },
+      child: isOwner ? _buildSlidableOwner(context) : _buildBlogTile(context),
+    );
+  }
+
+  Widget _buildSlidableOwner(BuildContext context) {
     return Slidable(
       key: ValueKey(blogId),
       endActionPane: ActionPane(
-        motion: ScrollMotion(),
+        motion: const ScrollMotion(),
         children: [
-          if (currentUser != null && currentUser.uid == blogData['uid'])
-            SlidableAction(
-              onPressed: (context) async {
-                bool confirmDelete = await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Delete Blog'),
-                          content: Text(
-                              'Are you sure you want to delete this blog?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: Text('Delete'),
-                            ),
-                          ],
-                        );
-                      },
-                    ) ??
-                    false;
-
-                if (confirmDelete) {
-                  await FirebaseFirestore.instance
-                      .collection('blogs')
-                      .doc(blogId)
-                      .delete();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Blog deleted successfully')),
-                  );
-                }
-              },
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              icon: Icons.delete,
-              label: 'Delete',
-            ),
+          SlidableActions(blogId: blogId),
         ],
       ),
-      child: GestureDetector(
-        onDoubleTap: () async {
-          try {
-            await blogRepository.likeBlog(blogId);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Liked the blog!')),
-            );
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(e.toString())),
-            );
-          }
-        },
-        child: ListTile(
-          leading: imageUrl.isNotEmpty
-              ? Image.network(imageUrl,
-                  width: 50, height: 50, fit: BoxFit.cover)
-              : Icon(Icons.image, size: 50),
-          title: Text(blogData['title'] ?? 'Untitled Blog'),
-          subtitle: Text(
-              'By ${blogData['author'] ?? 'Unknown Author'} • ${blogData['likes'] ?? 0} likes'),
-          onTap: () {
-            Navigator.of(context).push(
-              CustomPageRoute(
-                child: BlogDetailPage(
-                  title: blogData['title'] ?? 'Untitled Blog',
-                  content: blogData['content'] ?? 'No content available',
-                  author: blogData['author'] ?? 'Unknown Author',
-                  imageUrl: blogData['imageUrl'],
-                  publishedDate: blogData['publishedDate'] ?? 'Unknown date',
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+      child: _buildBlogTile(context),
+    );
+  }
+
+  Widget _buildBlogTile(BuildContext context) {
+    return BlogTile(
+      imageUrl: blogData['imageUrl'] ?? '',
+      title: blogData['title'] ?? 'Untitled Blog',
+      author: blogData['author'] ?? 'Unknown Author',
+      likes: blogData['likes'] ?? 0,
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => BlogDetailPage(
+              blogId: blogData['id'] ?? '0',
+              title: blogData['title'] ?? 'Untitled Blog',
+              content: blogData['content'] ?? 'No content available',
+              author: blogData['author'] ?? 'Unknown Author',
+              imageUrl: blogData['imageUrl'],
+              publishedDate: blogData['publishedDate'] ?? 'Unknown date',
+            ),
+          ),
+        );
+      },
     );
   }
 }

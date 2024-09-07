@@ -8,15 +8,13 @@ class BlogRepository {
 
   Stream<List<BlogModel>> fetchBlogs() {
     try {
-      return FirebaseFirestore.instance
-          .collection('blogs')
-          .snapshots() // This listens to real-time changes in the 'blogs' collection.
-          .map((snapshot) {
-        return snapshot.docs.map((doc) {
-          return BlogModel.fromFirestore(
-              doc.data() as Map<String, dynamic>, doc.id);
-        }).toList();
-      });
+       return FirebaseFirestore.instance.collection('blogs').snapshots().map(
+    (snapshot) {
+      return snapshot.docs.map((doc) {
+        return BlogModel.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList();
+    },
+  );
     } catch (e) {
       throw Exception('Failed to stream blogs: $e');
     }
@@ -36,18 +34,19 @@ class BlogRepository {
     }
   }
 
-  Future<void> addBlog(String title, String content) async {
+  Future<void> addBlog(String title, String content, String imageUrl) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
       await FirebaseFirestore.instance.collection('blogs').add({
         'title': title,
         'content': content,
-        'author': user.displayName ?? 'Anonymous',
+        'author': user.email ?? 'Anonymous',
         'publishedDate': DateTime.now().toString(),
         'likedBy': [],
         'likes': 0,
         'uid': user.uid,
+        'imageUrl': imageUrl
       });
     }
   }
@@ -64,7 +63,7 @@ class BlogRepository {
     }
   }
 
-  Future<void> likeBlog(String blogId) async {
+  Future<void> toggleLike(String blogId) async {
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser == null) {
@@ -77,17 +76,19 @@ class BlogRepository {
     if (!blogDoc.exists) {
       throw Exception('Blog not found');
     }
+
     List<String> likedBy = List<String>.from(blogDoc['likedBy'] ?? []);
 
     if (likedBy.contains(currentUser.uid)) {
-      throw Exception('You have already liked this blog');
+      await _firestore.collection('blogs').doc(blogId).update({
+        'likes': FieldValue.increment(-1),
+        'likedBy': FieldValue.arrayRemove([currentUser.uid]),
+      });
+    } else {
+      await _firestore.collection('blogs').doc(blogId).update({
+        'likes': FieldValue.increment(1),
+        'likedBy': FieldValue.arrayUnion([currentUser.uid]),
+      });
     }
-
-    likedBy.add(currentUser.uid);
-
-    await _firestore.collection('blogs').doc(blogId).update({
-      'likes': FieldValue.increment(1),
-      'likedBy': likedBy,
-    });
   }
 }
