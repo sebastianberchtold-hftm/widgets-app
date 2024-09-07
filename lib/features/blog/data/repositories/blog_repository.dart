@@ -8,13 +8,14 @@ class BlogRepository {
 
   Stream<List<BlogModel>> fetchBlogs() {
     try {
-       return FirebaseFirestore.instance.collection('blogs').snapshots().map(
-    (snapshot) {
-      return snapshot.docs.map((doc) {
-        return BlogModel.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
-      }).toList();
-    },
-  );
+      return FirebaseFirestore.instance.collection('blogs').snapshots().map(
+        (snapshot) {
+          return snapshot.docs.map((doc) {
+            return BlogModel.fromFirestore(
+                doc.data() as Map<String, dynamic>, doc.id);
+          }).toList();
+        },
+      );
     } catch (e) {
       throw Exception('Failed to stream blogs: $e');
     }
@@ -38,7 +39,8 @@ class BlogRepository {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      await FirebaseFirestore.instance.collection('blogs').add({
+      DocumentReference blogRef =
+          await FirebaseFirestore.instance.collection('blogs').add({
         'title': title,
         'content': content,
         'author': user.email ?? 'Anonymous',
@@ -46,8 +48,10 @@ class BlogRepository {
         'likedBy': [],
         'likes': 0,
         'uid': user.uid,
-        'imageUrl': imageUrl
+        'imageUrl': imageUrl,
       });
+
+      print("Blog added with ID: ${blogRef.id}");
     }
   }
 

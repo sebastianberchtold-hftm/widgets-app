@@ -20,8 +20,6 @@ class BlogListPage extends StatefulWidget {
 class _BlogListPageState extends State<BlogListPage>
     with TickerProviderStateMixin {
   final BlogRepository _blogRepository = BlogRepository();
-  List<BlogModel> _blogs = [];
-  bool _isLoading = false;
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -29,36 +27,11 @@ class _BlogListPageState extends State<BlogListPage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500), // Animation duration
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-
-    _refreshBlogs(); // Fetch blogs initially when the page loads
-  }
-
-  Future<void> _refreshBlogs() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await Future.delayed(Duration(seconds: 3)); // Simulate loading delay
-      List<BlogModel> fetchedBlogs = await _blogRepository.fetchBlogs().first;
-      setState(() {
-        _blogs = fetchedBlogs;
-      });
-      _controller.forward(); // Start the animation when blogs are loaded
-    } catch (e) {
-      print("Error fetching blogs: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to refresh blogs.')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    _controller.forward(); // Start animation immediately
   }
 
   @override
@@ -89,36 +62,43 @@ class _BlogListPageState extends State<BlogListPage>
           ),
         ],
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _refreshBlogs,
-              child: _blogs.isEmpty
-                  ? Center(child: Text('No blogs available.'))
-                  : ListView.builder(
-                      itemCount: _blogs.length,
-                      itemBuilder: (context, index) {
-                        BlogModel blog = _blogs[index];
+      body: StreamBuilder<List<BlogModel>>(
+        stream: _blogRepository.fetchBlogs(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No blogs available.'));
+          }
 
-                        // Apply fade animation to each blog tile
-                        return FadeTransition(
-                          opacity: _animation,
-                          child: SlidableBlogTile(
-                            blogId: blog.id,
-                            blogData: {
-                              'title': blog.title,
-                              'content': blog.content,
-                              'author': blog.author,
-                              'publishedDate': blog.publishedDate,
-                              'uid': blog.uid,
-                              'likes': blog.likes,
-                              'likedBy': blog.likedBy,
-                            },
-                          ),
-                        );
-                      },
-                    ),
-            ),
+          List<BlogModel> blogs = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: blogs.length,
+            itemBuilder: (context, index) {
+              BlogModel blog = blogs[index];
+
+              return FadeTransition(
+                opacity: _animation,
+                child: SlidableBlogTile(
+                  blogId: blog.id,
+                  blogData: {
+                    'title': blog.title,
+                    'content': blog.content,
+                    'author': blog.author,
+                    'publishedDate': blog.publishedDate,
+                    'uid': blog.uid,
+                    'likes': blog.likes,
+                    'likedBy': blog.likedBy,
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 20.0),
         child: FloatingActionButton(

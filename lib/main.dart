@@ -8,8 +8,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions
-        .currentPlatform, // Use platform-specific Firebase config
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(BlogApp());
 }
@@ -22,7 +21,6 @@ class BlogApp extends StatefulWidget {
 class _BlogAppState extends State<BlogApp> {
   ThemeMode _themeMode = ThemeMode.system;
 
-  // Toggle theme between light and dark
   void _toggleTheme(bool isDarkMode) {
     setState(() {
       _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;

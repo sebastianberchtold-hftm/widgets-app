@@ -7,8 +7,8 @@ class CustomPageRoute extends PageRouteBuilder {
       : super(
           pageBuilder: (context, animation, secondaryAnimation) => child,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0); // Start from the right
-            const end = Offset.zero; // End at original position
+            const begin = Offset(1.0, 0.0); 
+            const end = Offset.zero; 
             const curve = Curves.ease;
 
             var tween =

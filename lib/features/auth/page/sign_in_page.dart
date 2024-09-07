@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../controlles/authentication.dart'; // Make sure to import your AuthService
+import '../controlles/authentication.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -11,8 +11,7 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService =
-      AuthService(); // Create an instance of AuthService
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {

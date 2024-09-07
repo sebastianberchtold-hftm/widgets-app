@@ -7,7 +7,7 @@ class BlogModel {
   final String uid;
   final String imageUrl;
   final int likes;
-  final List<String> likedBy; // Track which users liked the blog
+  final List<String> likedBy;
 
   BlogModel({
     required this.id,
@@ -21,7 +21,6 @@ class BlogModel {
     required this.likedBy,
   });
 
-  // Factory constructor to create a BlogModel from Firestore data
   factory BlogModel.fromFirestore(Map<String, dynamic> data, String id) {
     return BlogModel(
       id: id,
@@ -32,12 +31,10 @@ class BlogModel {
       uid: data['uid'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       likes: data['likes'] ?? 0,
-      likedBy:
-          List<String>.from(data['likedBy'] ?? []), // Initialize likedBy list
+      likedBy: List<String>.from(data['likedBy'] ?? []),
     );
   }
 
-  // Convert the BlogModel back to a Map for Firestore (useful for updating/creating)
   Map<String, dynamic> toFirestore() {
     return {
       'title': title,
@@ -47,7 +44,7 @@ class BlogModel {
       'uid': uid,
       'imageUrl': imageUrl,
       'likes': likes,
-      'likedBy': likedBy, // Include likedBy when saving to Firestore
+      'likedBy': likedBy,
     };
   }
 }

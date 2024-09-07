@@ -87,7 +87,6 @@ class _EditBlogPageState extends State<EditBlogPage> {
       });
 
       try {
-        // Call the updateBlog method from the repository
         await _blogRepository.updateBlog(
           widget.blog.id,
           _titleController.text.trim(),
@@ -97,7 +96,7 @@ class _EditBlogPageState extends State<EditBlogPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Blog updated successfully!')),
         );
-        Navigator.pop(context); // Navigate back to the blog list
+        Navigator.pop(context);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to update blog: $e')),

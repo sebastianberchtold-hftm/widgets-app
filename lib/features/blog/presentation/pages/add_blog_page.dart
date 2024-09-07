@@ -25,7 +25,7 @@ class _AddBlogPageState extends State<AddBlogPage> {
 
     if (pickedImage != null) {
       setState(() {
-        _selectedImage = File(pickedImage.path); // Store the selected image
+        _selectedImage = File(pickedImage.path);
       });
     }
   }
